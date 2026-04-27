@@ -24,7 +24,7 @@ test.describe('Landing page', () => {
 
   test('CTA button navigates into the wizard', async ({ page }) => {
     await page.getByRole('button', { name: /Test My App/i }).click();
-    await expect(page.getByText(/Tell us what you built/i)).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Tell us what you built/i })).toBeVisible();
   });
 
   test('shows the "How it works" section with 4 steps', async ({ page }) => {
@@ -36,8 +36,8 @@ test.describe('Landing page', () => {
   });
 
   test('shows tool badges (Cursor, Bolt, etc.)', async ({ page }) => {
-    await expect(page.getByText('Cursor')).toBeVisible();
-    await expect(page.getByText('Bolt')).toBeVisible();
+    await expect(page.getByText('Cursor', { exact: true })).toBeVisible();
+    await expect(page.getByText('Bolt', { exact: true })).toBeVisible();
   });
 
   test('shows "FREE WHILE IN BETA" badge', async ({ page }) => {

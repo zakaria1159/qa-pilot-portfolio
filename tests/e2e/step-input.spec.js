@@ -4,15 +4,15 @@ import { test, expect } from '@playwright/test';
 async function goToStep1(page) {
   await page.goto('/');
   await page.getByRole('button', { name: /Test My App/i }).click();
-  await expect(page.getByText(/Tell us what you built/i)).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Tell us what you built/i })).toBeVisible();
 }
 
 test.describe('Step 1: Input form', () => {
 
   test('shows the step header', async ({ page }) => {
     await goToStep1(page);
-    await expect(page.getByText('STEP 01')).toBeVisible();
-    await expect(page.getByText(/Tell us what you built/i)).toBeVisible();
+    await expect(page.getByText('STEP 01 / YOUR APP')).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Tell us what you built/i })).toBeVisible();
   });
 
   test('"Find What Could Break" button is disabled initially', async ({ page }) => {

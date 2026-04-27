@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test';
 async function goToStep2(page) {
   await page.goto('/');
   await page.getByRole('button', { name: /Test My App/i }).click();
-  await expect(page.getByText(/Tell us what you built/i)).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Tell us what you built/i })).toBeVisible();
   await page.getByRole('button', { name: /AI-powered tool/i }).click();
   await page.getByRole('button', { name: /Getting AI to generate something/i }).click();
   await page.getByRole('button', { name: /Has active users/i }).click();
