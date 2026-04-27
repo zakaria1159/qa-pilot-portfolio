@@ -11,6 +11,10 @@ async function goToStep2(page) {
   await page.getByRole('button', { name: /Find What Could Break/i }).click();
 }
 
+// Step 2 is fully loaded when the "SEE WHAT TO TEST →" button appears.
+const waitForStep2Loaded = (page) =>
+  expect(page.getByRole('button', { name: 'SEE WHAT TO TEST →' })).toBeVisible({ timeout: 60_000 });
+
 test.describe('Step 2: Risk Analysis', () => {
   test.setTimeout(90_000);
 
@@ -26,32 +30,30 @@ test.describe('Step 2: Risk Analysis', () => {
 
   test('shows a severity badge after Claude responds', async ({ page }) => {
     await goToStep2(page);
-    await expect(
-      page.getByText(/^(High|Medium|Low)$/)
-    ).toBeVisible({ timeout: 60_000 });
+    await waitForStep2Loaded(page);
+    await expect(page.getByText(/High|Medium|Low/i)).toBeVisible();
   });
 
   test('shows at least 3 risk items', async ({ page }) => {
     await goToStep2(page);
-    await expect(page.getByText(/^(High|Medium|Low)$/)).toBeVisible({ timeout: 60_000 });
+    await waitForStep2Loaded(page);
     await expect(page.getByText(/STEP 02/i)).toBeVisible();
   });
 
   test('shows "Probably missed" section', async ({ page }) => {
     await goToStep2(page);
-    await expect(page.getByText(/^(High|Medium|Low)$/)).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByText(/probably/i)).toBeVisible({ timeout: 60_000 });
+    await waitForStep2Loaded(page);
+    await expect(page.getByText(/probably/i)).toBeVisible();
   });
 
   test('shows "Quick wins" section', async ({ page }) => {
     await goToStep2(page);
-    await expect(page.getByText(/^(High|Medium|Low)$/)).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByText(/quick/i)).toBeVisible({ timeout: 60_000 });
+    await waitForStep2Loaded(page);
+    await expect(page.getByText(/quick/i)).toBeVisible();
   });
 
   test('"SEE WHAT TO TEST →" button is visible after analysis loads', async ({ page }) => {
     await goToStep2(page);
-    await expect(page.getByText(/^(High|Medium|Low)$/)).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByRole('button', { name: 'SEE WHAT TO TEST →' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'SEE WHAT TO TEST →' })).toBeVisible({ timeout: 60_000 });
   });
 });

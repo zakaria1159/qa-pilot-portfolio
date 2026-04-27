@@ -12,9 +12,10 @@ export async function fillStep1(page) {
   await page.getByRole('button', { name: 'Find What Could Break →' }).click();
 }
 
-// Wait for Step 2's Claude response (severity badge appears when done).
+// Wait for Step 2's Claude response — the "SEE WHAT TO TEST →" button appears when done.
+// More reliable than the severity badge text, which can be wrapped in other elements.
 export async function waitForStep2(page) {
-  await expect(page.getByText(/^(High|Medium|Low)$/)).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByRole('button', { name: 'SEE WHAT TO TEST →' })).toBeVisible({ timeout: 60_000 });
 }
 
 // Navigate from Step 2 to Step 3, then trigger test case generation.

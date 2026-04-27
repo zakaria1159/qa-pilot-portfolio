@@ -17,7 +17,7 @@ test('complete wizard flow: landing → Step 4 → HTML download', async ({ page
 
   // ── Step 1: Fill in the input form ────────────────────────────────────────
   await page.getByRole('button', { name: /Test My App/i }).click();
-  await expect(page.getByText(/Tell us what you built/i)).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Tell us what you built/i })).toBeVisible();
 
   await page.getByRole('button', { name: /AI-powered tool/i }).click();
   await page.getByRole('button', { name: /Getting AI to generate something/i }).click();
@@ -29,7 +29,8 @@ test('complete wizard flow: landing → Step 4 → HTML download', async ({ page
   await step1NextBtn.click();
 
   // ── Step 2: Risk analysis loads ───────────────────────────────────────────
-  await expect(page.getByText(/^(High|Medium|Low)$/)).toBeVisible({ timeout: 60_000 });
+  // Wait for the "SEE WHAT TO TEST →" button — more reliable than the severity badge text
+  await expect(page.getByRole('button', { name: 'SEE WHAT TO TEST →' })).toBeVisible({ timeout: 60_000 });
   await page.getByRole('button', { name: 'SEE WHAT TO TEST →' }).click();
 
   // ── Step 3: Generate test cases ───────────────────────────────────────────
