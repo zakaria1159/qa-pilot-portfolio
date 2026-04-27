@@ -2,8 +2,16 @@
 #
 # Runs on every push to main and every pull request.
 # Two jobs run in parallel:
-#   - unit-tests: Vitest (fast, ~5 seconds)
-#   - e2e-tests: Playwright against qa-pilot.com (slower, ~5-10 minutes)
+#   - unit-tests: Vitest (fast, ~5 seconds, always reliable)
+#   - e2e-tests: Playwright, fast subset only (no Claude API calls)
+#
+# WHY only fast E2E tests in CI:
+#   The production app at qa-pilot.com has a rate limiter of 10 Claude API
+#   calls per day per IP. A single full test run makes ~33 API calls, so tests
+#   beyond the 10th consistently hit 429 and fail. The Claude-dependent tests
+#   (step-analyze, step-test, step-code, wizard-flow, resilience) are run
+#   locally where the rate limit can be managed. CI covers the deterministic,
+#   always-reliable subset.
 
 name: CI
 
@@ -35,10 +43,11 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit
 
-  # ── Job 2: E2E tests (Playwright) ───────────────────────────────────────────
+  # ── Job 2: E2E tests — fast subset (no Claude API calls) ────────────────────
   e2e-tests:
-    name: E2E Tests (Playwright)
+    name: E2E Tests (Playwright — fast subset)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -53,22 +62,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Download the Chromium browser binary that Playwright needs
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
 
-      # Run all E2E tests against the live production app.
-      # ANTHROPIC_API_KEY is stored as a GitHub repository secret.
-      # Add it in: GitHub repo → Settings → Secrets → Actions → New secret
-      # Name: ANTHROPIC_API_KEY
-      - name: Run E2E tests
-        run: npm run test:e2e
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      # Runs only the tests that don't call the Claude API:
+      #   - landing.spec.js      — UI only, no API
+      #   - step-input.spec.js   — UI only, no API
+      #   - api-regression.spec.js — error paths only (405s), no Claude call
+      #
+      # Claude-dependent tests (step-analyze, step-test, step-code,
+      # wizard-flow, resilience) are excluded here because the production
+      # rate limiter (10 req/day/IP) makes them unreliable in CI.
+      # Run the full suite locally with: npm run test:e2e
+      - name: Run fast E2E tests
+        run: npx playwright test tests/e2e/landing.spec.js tests/e2e/step-input.spec.js tests/e2e/api-regression.spec.js
 
-      # Upload the HTML test report as a downloadable artifact.
-      # After CI runs: GitHub Actions → the run → Artifacts → playwright-report
-      # Download, open playwright-report/index.html — this is your proof-of-testing artifact.
       - name: Upload Playwright HTML report
         uses: actions/upload-artifact@v4
         if: always()
