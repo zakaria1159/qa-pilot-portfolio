@@ -1,0 +1,18 @@
+{
+  "name": "qa-pilot-portfolio",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "QA portfolio for qa-pilot.com — manual docs, Vitest unit tests, Playwright E2E + API tests, GitHub Actions CI",
+  "scripts": {
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@vitest/coverage-v8": "^4.1.5",
+    "jsdom": "^29.0.2",
+    "vitest": "^4.1.5"
+  }
+}
